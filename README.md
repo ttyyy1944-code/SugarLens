@@ -1,35 +1,35 @@
-# SugarLens v1.0 — Diagnóstico & Escáner
+# SugarLens v1.1 — Fabric adapter
 
-SugarLens Core is an independent observation and recording module for DonutLab / Sugar Series. It captures a Minecraft server endpoint, detected server software, active game mode and early-session latency, then writes one JSON report per unique server + mode pair.
+SugarLens is a client-side Minecraft server diagnostics mod and reusable Java core for DonutLab / Sugar Series.
 
-## Features
-- Normalize host names to lowercase and remove the default :25565 port.
-- Detect Paper, Spigot, Fabric, BungeeCord, Velocity or Vanilla from the minecraft:brand payload.
-- Resolve mode names from scoreboard title, boss bar, then tab header; fallback: survival_default.
-- Track min/max/average KeepAlive RTT during the first 30 seconds.
-- Write donutlab_scans/<server-id>/<mode-id>/report.json.
-- Skip existing reports to avoid duplicates.
+## Target
+- Minecraft Java 1.21.11
+- Java 21
+- Fabric Loader 0.18.1
+- Fabric API 0.141.1+1.21.11
+- Fabric Loom 1.14
+
+## Current implementation
+- Server address normalization.
+- Server software brand classification from a supplied brand payload.
+- Game mode signal normalization from scoreboard, boss bar and tab header.
+- KeepAlive RTT aggregation for the first 30 seconds when packet timestamps are supplied.
+- JSON report output under `<game-directory>/donutlab_scans/<server>/<mode>/report.json`.
+- Duplicate report prevention.
+- Fabric client join/disconnect lifecycle adapter.
+- GitHub Actions build and test workflow.
+
+## Important integration status
+The Fabric entrypoint currently starts a scan session on joining a multiplayer server and writes it on disconnect. The packet-level hooks that feed the brand payload, scoreboard/boss-bar/tab signals and KeepAlive timestamps are **not wired yet**. Until those hooks are added, reports use `brand_info: "Unknown"`, `detected_mode: "survival_default"` and omit latency unless data is supplied by another adapter. Do not treat these fields as detected values when the corresponding signal was not captured.
 
 ## Build
-Requires JDK 21 and Gradle 8.7+.
+Requires JDK 21 and Gradle 9.2.1 or newer.
 
 ```bash
-gradle test
-gradle build
+gradle clean test build
 ```
 
-## Minecraft integration
-The core has no Minecraft runtime dependency. A loader-specific adapter should:
-1. Pass ServerData.serverIP to SugarLens.begin() on connection.
-2. Pass the decoded minecraft:brand custom payload to recordBrandPayload().
-3. Supply scoreboard title, boss-bar title and tab header to recordModeSignals().
-4. Pair KeepAlive IDs using onKeepAliveSent(id, System.nanoTime()) and onKeepAliveReceived(id, System.nanoTime()).
-5. Call finishAndWrite() on disconnect or scan completion.
-
-The adapter must use supported client APIs/mixins for the target loader/version and must not block render or network threads during file writes.
-
-## Report
-The required fields are timestamp (ISO-8601 UTC), server_ip, detected_mode and brand_info. The optional latency object contains min_ms, max_ms, average_ms, samples and window_seconds.
+GitHub Actions runs the same build on pushes and pull requests.
 
 ## Privacy
-Reports are local only. SugarLens does not upload server addresses or scan data. Do not commit generated scan reports.
+Reports remain on the local game device. SugarLens does not transmit server addresses or report contents.
