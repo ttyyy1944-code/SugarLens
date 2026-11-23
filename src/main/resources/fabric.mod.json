@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "sugarlens",
+  "version": "${version}",
+  "name": "SugarLens",
+  "description": "Client-side server diagnostics and scan reports for DonutLab / Sugar Series.",
+  "authors": ["DonutLab"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.donutlab.sugarlens.fabric.SugarLensFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
