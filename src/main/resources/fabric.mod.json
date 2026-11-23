@@ -3,7 +3,7 @@
   "id": "sugarlens",
   "version": "${version}",
   "name": "SugarLens",
-  "description": "Client-side server diagnostics and scan reports for DonutLab / Sugar Series.",
+  "description": "Client-side Minecraft server diagnostics and scan reports.",
   "authors": ["DonutLab"],
   "license": "All-Rights-Reserved",
   "environment": "client",
@@ -12,6 +12,9 @@
       "dev.donutlab.sugarlens.fabric.SugarLensFabric"
     ]
   },
+  "mixins": [
+    "sugarlens.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.18.1",
     "minecraft": "1.21.11",
