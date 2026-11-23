@@ -2,7 +2,6 @@ package dev.donutlab.sugarlens.mixin;
 
 import dev.donutlab.sugarlens.fabric.SugarLensFabric;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,10 +11,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** Observes the vanilla server brand payload without cancelling or changing it. */
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
+    /**
+     * In Minecraft 1.21.11 handleCustomPayload receives the payload itself,
+     * not a ClientboundCustomPayloadPacket wrapper.
+     */
     @Inject(method = "handleCustomPayload", at = @At("HEAD"))
-    private void sugarlens$captureBrand(ClientboundCustomPayloadPacket packet, CallbackInfo ci) {
-        if (packet == null) return;
-        CustomPacketPayload payload = packet.payload();
+    private void sugarlens$captureBrand(CustomPacketPayload payload, CallbackInfo ci) {
         if (payload == null) return;
         try {
             String id = String.valueOf(payload.type().id());
